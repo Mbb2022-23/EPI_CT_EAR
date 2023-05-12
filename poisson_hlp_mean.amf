@@ -1,0 +1,327 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!                                                   !!
+!! Poisson regression HLP for EPICT                  !!
+!! M. Hauptmann, Feb 2023                            !!
+!! HLP incidence and EAR                             !!
+!!                                                   !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+NEW@
+NOQUERY@
+CD "c:\tmp\epict\ana"@
+SESSION poisson_hlp_mean@
+USE "c:\tmp\epict\data\hlp_mean.bsf" INPUT@
+FITOPT ITER 500@
+PYR pyr@
+STRATA yrg ageg sex country@
+
+! outcomes
+!     myl 
+!     lym 
+!     hlp 
+
+! to obtain RRs per 100 mGy divide doses by 100
+TRAN cum=cum/100@
+MEAN cum; BY cumg@
+QUAN cum; BY cumg@
+
+SUM pyr fatrisk hlp@
+QUAN pyr@
+SUM fatrisk; BY country@
+SUM hlp; BY country@
+SUM pyr; BY country@
+
+! cumulative dose per 100 mGy
+MEAN cum@
+QUAN cum@
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! All HLP
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+CASES hlp@
+SUM hlp@
+
+! by cumulative bone marrow dose
+SUM hlp; BY cumg@
+NOMODEL@
+FIT@ NULL@
+FIT cumg@ CI@ LRT@
+
+NOMODEL@
+FIT@ NULL@
+LINE 1 cum@ FIT@ LRT@
+BOUNDS 2@
+
+! non-linearity
+NULL@ LOGL 1 cum@ FIT@ LRT@
+
+
+
+! calculate excess cases for all HLP tumors
+NOMODEL@ 
+
+! 8 mGy (mean bone marrow dose from CT in 2012-2014)
+CASES hlp@
+PYR pyr@
+BACK@
+FV@
+EXCESS@
+STRATA yrg ageg sex country@
+LINE 1 cum@ FIT@	
+
+SUM hlp %BK %EX %FV@
+	
+! attributable risk
+TRAN car=100*%EX/%FV@
+MEAN car; WEIGHT %FV@
+
+! calculate EAR per 8 mGy per 100000 person-years (12.5*8=100)
+TRAN pygy=(pyr/100000)*(12.5*cum);
+     erate=%EX/pygy@
+MEAN erate; WEIGHT pygy@
+
+! confidence intervals
+BOUNDS 2@ NULL@
+
+PARAMETER 2=#_lrhi@
+FIT@
+LRT@	
+	
+TRAN erate=%EX/pygy;	
+     car=100*%EX/%FV@
+MEAN erate; WEIGHT pygy@
+MEAN car; WEIGHT %FV@
+
+PARA 2=#_lrlo@
+FIT@
+LRT@
+TRAN erate=%EX/pygy;
+     car=100*%EX/%FV@
+MEAN erate; WEIGHT pygy@
+MEAN car; WEIGHT %FV@
+
+
+
+
+
+! 5 mGy
+CASES hlp@
+PYR pyr@
+BACK@
+FV@
+EXCESS@
+STRATA yrg ageg sex country@
+LINE 1 cum@ FIT@	
+
+SUM hlp %BK %EX %FV@
+	
+! attributable risk
+TRAN car=100*%EX/%FV@
+MEAN car; WEIGHT %FV@
+
+! calculate EAR per 5 mGy per 100000 person-years (20*5=100)
+TRAN pygy=(pyr/100000)*(20*cum);
+     erate=%EX/pygy@
+MEAN erate; WEIGHT pygy@
+
+! confidence intervals
+BOUNDS 2@ NULL@
+
+PARAMETER 2=#_lrhi@
+FIT@
+LRT@	
+	
+TRAN erate=%EX/pygy;	
+     car=100*%EX/%FV@
+MEAN erate; WEIGHT pygy@
+MEAN car; WEIGHT %FV@
+
+PARA 2=#_lrlo@
+FIT@
+LRT@
+TRAN erate=%EX/pygy;
+     car=100*%EX/%FV@
+MEAN erate; WEIGHT pygy@
+MEAN car; WEIGHT %FV@
+
+
+! 10 mGy
+CASES hlp@
+PYR pyr@
+BACK@
+FV@
+EXCESS@
+STRATA yrg ageg sex country@
+LINE 1 cum@ FIT@	
+
+SUM hlp %BK %EX %FV@
+	
+! attributable risk
+TRAN car=100*%EX/%FV@
+MEAN car; WEIGHT %FV@
+
+! calculate EAR per 10 mGy per 100000 person-years (10*10=100)
+TRAN pygy=(pyr/100000)*(10*cum);
+     erate=%EX/pygy@
+MEAN erate; WEIGHT pygy@
+
+! confidence intervals
+BOUNDS 2@ NULL@
+
+PARAMETER 2=#_lrhi@
+FIT@
+LRT@	
+	
+TRAN erate=%EX/pygy;	
+     car=100*%EX/%FV@
+MEAN erate; WEIGHT pygy@
+MEAN car; WEIGHT %FV@
+
+PARA 2=#_lrlo@
+FIT@
+LRT@
+TRAN erate=%EX/pygy;
+     car=100*%EX/%FV@
+MEAN erate; WEIGHT pygy@
+MEAN car; WEIGHT %FV@
+
+
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! lym
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+CASES lym@
+SUM lym@
+
+! by cumulative bone marrow dose
+SUM lym; BY cumg@
+NOMODEL@
+FIT@ NULL@
+FIT cumg@ CI@ LRT@
+
+NOMODEL@
+FIT@ NULL@
+LINE 1 cum@ FIT@ LRT@
+BOUNDS 2@
+
+! non-linearity
+NULL@ LOGL 1 cum@ FIT@ LRT@
+
+
+
+! calculate excess cases for lym
+NOMODEL@ 
+
+! 8 mGy (mean bone marrow dose from CT in 2012-2014)
+CASES lym@
+PYR pyr@
+BACK@
+FV@
+EXCESS@
+STRATA yrg ageg sex country@
+LINE 1 cum@ FIT@	
+
+SUM lym %BK %EX %FV@
+	
+! attributable risk
+TRAN car=100*%EX/%FV@
+MEAN car; WEIGHT %FV@
+
+! calculate EAR per 8 mGy per 100000 person-years (12.5*8=100)
+TRAN pygy=(pyr/100000)*(12.5*cum);
+     erate=%EX/pygy@
+MEAN erate; WEIGHT pygy@
+
+! confidence intervals
+BOUNDS 2@ NULL@
+
+PARAMETER 2=#_lrhi@
+FIT@
+LRT@	
+	
+TRAN erate=%EX/pygy;	
+     car=100*%EX/%FV@
+MEAN erate; WEIGHT pygy@
+MEAN car; WEIGHT %FV@
+
+PARA 2=#_lrlo@
+FIT@
+LRT@
+TRAN erate=%EX/pygy;
+     car=100*%EX/%FV@
+MEAN erate; WEIGHT pygy@
+MEAN car; WEIGHT %FV@
+
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! myl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+CASES myl@
+SUM myl@
+
+! by cumulative bone marrow dose
+SUM myl; BY cumg@
+NOMODEL@
+FIT@ NULL@
+FIT cumg@ CI@ LRT@
+
+NOMODEL@
+FIT@ NULL@
+LINE 1 cum@ FIT@ LRT@
+BOUNDS 2@
+
+! non-linearity
+NULL@ LOGL 1 cum@ FIT@ LRT@
+
+! calculate excess cases for myl
+NOMODEL@ 
+
+! 8 mGy (mean bone marrow dose from CT in 2012-2014)
+CASES myl@
+PYR pyr@
+BACK@
+FV@
+EXCESS@
+STRATA yrg ageg sex country@
+LINE 1 cum@ FIT@	
+
+SUM myl %BK %EX %FV@
+	
+! attributable risk
+TRAN car=100*%EX/%FV@
+MEAN car; WEIGHT %FV@
+
+! calculate EAR per 8 mGy per 100000 person-years (12.5*8=100)
+TRAN pygy=(pyr/100000)*(12.5*cum);
+     erate=%EX/pygy@
+MEAN erate; WEIGHT pygy@
+
+! confidence intervals
+BOUNDS 2@ NULL@
+
+PARAMETER 2=#_lrhi@
+FIT@
+LRT@	
+	
+TRAN erate=%EX/pygy;	
+     car=100*%EX/%FV@
+MEAN erate; WEIGHT pygy@
+MEAN car; WEIGHT %FV@
+
+PARA 2=#_lrlo@
+FIT@
+LRT@
+TRAN erate=%EX/pygy;
+     car=100*%EX/%FV@
+MEAN erate; WEIGHT pygy@
+MEAN car; WEIGHT %FV@
+
+
+
+
+
+RETURN@
